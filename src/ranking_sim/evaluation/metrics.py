@@ -4,7 +4,7 @@ from dataclasses import dataclass, field
 from typing import Dict
 
 from ranking_sim.data.schema import SimStepResult
-
+from ranking_sim.evaluation.ranking_metrics import ndcg
 
 @dataclass
 class MetricsAggregator:
@@ -12,6 +12,10 @@ class MetricsAggregator:
     clicks: int = 0
     revenue: float = 0.0
     avg_shown: float = 0.0
+    # Ranking quality
+    ndcg_sum: float = 0.0
+    ndcg_count: int = 0
+    ndcg_k: int = 4  # default; will match n_slots if you set it
 
     # Per-position accumulators
     pos_imps: Dict[int, int] = field(default_factory=dict)          # how many times pos existed
@@ -33,6 +37,13 @@ class MetricsAggregator:
             self.pos_rev[pos] = self.pos_rev.get(pos, 0.0) + float(s.revenue)
             self.pos_pctr_sum[pos] = self.pos_pctr_sum.get(pos, 0.0) + float(s.pctr)
             self.pos_bid_sum[pos] = self.pos_bid_sum.get(pos, 0.0) + float(s.bid_cpc)
+        
+        # NDCG@K using pCTR as graded relevance for the shown list.
+        # rels are in ranked order already (position 0..K-1).
+        rels = [float(s.pctr) for s in step.slot_outcomes]
+        if rels:
+            self.ndcg_sum += float(ndcg(rels, k=min(self.ndcg_k, len(rels))))
+            self.ndcg_count += 1
 
     def finalize(self) -> dict:
         imps = max(1, self.impressions)
@@ -51,7 +62,7 @@ class MetricsAggregator:
                 "avg_bid_cpc": self.pos_bid_sum.get(pos, 0.0) / n,
                 "avg_rev_per_imp": self.pos_rev.get(pos, 0.0) / n,
             }
-
+        mean_ndcg = self.ndcg_sum / max(1, self.ndcg_count)
         return {
             "impressions": self.impressions,
             "clicks": self.clicks,
@@ -59,5 +70,7 @@ class MetricsAggregator:
             "revenue": self.revenue,
             "ecpm": ecpm,
             "avg_ads_shown": self.avg_shown / imps,
+            "mean_ndcg": mean_ndcg,
+            "ndcg_k": self.ndcg_k,
             "pos": pos_summary,  # <- nested dict keyed by position
         }

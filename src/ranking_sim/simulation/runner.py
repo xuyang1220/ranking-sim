@@ -29,7 +29,7 @@ def run_simulation(
     keep_steps: bool = False,
 ) -> RunOutput:
     rng = np.random.default_rng(seed)
-    metrics = MetricsAggregator()
+    metrics = MetricsAggregator(ndcg_k=n_slots)
     steps: Optional[list[SimStepResult]] = [] if keep_steps else None
 
     n = 0

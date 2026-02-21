@@ -48,13 +48,14 @@ def main() -> None:
             "ctr": metrics["ctr"],
             "revenue": metrics["revenue"],
             "ecpm": metrics["ecpm"],
+            "mean_ndcg": metrics["mean_ndcg"],
         })
 
-        print(f"alpha={alpha:.2f}  CTR={metrics['ctr']:.4f}  Rev={metrics['revenue']:.2f}")
+        print(f"alpha={alpha:.2f}  CTR={metrics['ctr']:.4f}  Rev={metrics['revenue']:.2f} ecpm={metrics['ecpm']:.4f} mean_ndcg={metrics['mean_ndcg']:3f}")
 
     # Write CSV
     with open("alpha_sweep.csv", "w", newline="") as f:
-        writer = csv.DictWriter(f, fieldnames=["alpha", "ctr", "revenue", "ecpm"])
+        writer = csv.DictWriter(f, fieldnames=["alpha", "ctr", "revenue", "ecpm", "mean_ndcg"])
         writer.writeheader()
         writer.writerows(rows)
 
