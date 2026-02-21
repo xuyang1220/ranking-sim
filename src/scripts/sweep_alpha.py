@@ -29,16 +29,19 @@ def main() -> None:
             seed=7,  # keep fixed for fair comparison
         )
 
+        user_model = PositionBiasClickModel(position_bias=[1.0, 0.7, 0.5, 0.3])
+        n_slots = 4
+
         out = run_simulation(
             impressions=impressions,
             predictor=predictor,
             policy=policy,
-            auction=auction,
             user_model=user_model,
+            n_slots=n_slots,
             seed=42,
             keep_steps=False,
         )
-
+        
         metrics = out.metrics
         rows.append({
             "alpha": float(alpha),

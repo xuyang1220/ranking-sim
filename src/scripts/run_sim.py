@@ -57,12 +57,15 @@ def main() -> None:
 
     impressions = make_synthetic_impressions(n_impressions=50_000, n_candidates=30, seed=7)
 
+    user_model = PositionBiasClickModel(position_bias=[1.0, 0.7, 0.5, 0.3])
+    n_slots = 4
+
     out = run_simulation(
         impressions=impressions,
         predictor=predictor,
         policy=policy,
-        auction=auction,
         user_model=user_model,
+        n_slots=n_slots,
         seed=42,
         keep_steps=False,
     )

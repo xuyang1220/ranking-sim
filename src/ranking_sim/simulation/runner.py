@@ -1,14 +1,13 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Iterable, Optional
+from typing import Iterable, Optional, List
 
 import numpy as np
 
-from ranking_sim.data.schema import Impression, SimStepResult
+from ranking_sim.data.schema import Impression, SimStepResult, SlotOutcome
 from ranking_sim.models.predictor import Predictor
 from ranking_sim.ranking.policy import RankingPolicy
-from ranking_sim.auction.mechanisms import AuctionMechanism
 from ranking_sim.simulation.user import UserModel
 from ranking_sim.evaluation.metrics import MetricsAggregator
 
@@ -17,7 +16,6 @@ from ranking_sim.evaluation.metrics import MetricsAggregator
 class RunOutput:
     metrics: dict
     n_steps: int
-    # Optional: store per-step results (turn off by default for speed)
     steps: Optional[list[SimStepResult]] = None
 
 
@@ -25,8 +23,8 @@ def run_simulation(
     impressions: Iterable[Impression],
     predictor: Predictor,
     policy: RankingPolicy,
-    auction: AuctionMechanism,
     user_model: UserModel,
+    n_slots: int = 1,
     seed: int = 42,
     keep_steps: bool = False,
 ) -> RunOutput:
@@ -39,35 +37,47 @@ def run_simulation(
         n += 1
         pctr = predictor.predict_pctr(imp)
         scores = policy.score(imp, pctr)
-        auc = auction.run(imp, scores=scores, pctr=pctr)
 
-        if auc.winner_ad_id is None:
-            step = SimStepResult(
-                imp_id=imp.imp_id,
-                winner_ad_id=None,
-                winner_advertiser_id=None,
-                winner_bid_cpc=0.0,
-                winner_pctr=0.0,
-                price_cpc=0.0,
-                clicked=False,
-                revenue=0.0,
-            )
-        else:
-            winner = next(c for c in imp.candidates if c.ad_id == auc.winner_ad_id)
-            win_pctr = float(pctr[winner.ad_id])
-            clicked = user_model.sample_click(win_pctr, position=0, rng=rng)
-            revenue = float(auc.price_cpc) if clicked else 0.0
+        ranked: List[int] = sorted(scores.keys(), key=lambda ad_id: scores[ad_id], reverse=True)
+        shown = ranked[: max(0, int(n_slots))]
 
-            step = SimStepResult(
-                imp_id=imp.imp_id,
-                winner_ad_id=winner.ad_id,
-                winner_advertiser_id=winner.advertiser_id,
-                winner_bid_cpc=float(winner.bid_cpc),
-                winner_pctr=win_pctr,
-                price_cpc=float(auc.price_cpc),
-                clicked=clicked,
-                revenue=revenue,
+        slot_outcomes: List[SlotOutcome] = []
+        total_clicks = 0
+        total_revenue = 0.0
+
+        for pos, ad_id in enumerate(shown):
+            c = next(x for x in imp.candidates if x.ad_id == ad_id)
+            this_pctr = float(pctr[ad_id])
+
+            clicked = user_model.sample_click(this_pctr, position=pos, rng=rng)
+
+            # Minimal pricing: first-price CPC (pay bid if clicked)
+            price_cpc = float(c.bid_cpc) if clicked else 0.0
+            revenue = price_cpc
+
+            total_clicks += int(clicked)
+            total_revenue += revenue
+
+            slot_outcomes.append(
+                SlotOutcome(
+                    position=pos,
+                    ad_id=c.ad_id,
+                    advertiser_id=c.advertiser_id,
+                    bid_cpc=float(c.bid_cpc),
+                    pctr=this_pctr,
+                    clicked=clicked,
+                    price_cpc=price_cpc,
+                    revenue=revenue,
+                )
             )
+
+        step = SimStepResult(
+            imp_id=imp.imp_id,
+            shown_ad_ids=shown,
+            slot_outcomes=slot_outcomes,
+            total_clicks=total_clicks,
+            total_revenue=float(total_revenue),
+        )
 
         metrics.update(step)
         if steps is not None:

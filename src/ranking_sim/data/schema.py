@@ -27,12 +27,21 @@ class AuctionResult:
 
 
 @dataclass(frozen=True)
+class SlotOutcome:
+    position: int
+    ad_id: int
+    advertiser_id: int
+    bid_cpc: float
+    pctr: float
+    clicked: bool
+    price_cpc: float   # realized CPC if clicked else 0
+    revenue: float     # same as price_cpc if clicked else 0
+
+
+@dataclass(frozen=True)
 class SimStepResult:
     imp_id: int
-    winner_ad_id: Optional[int]
-    winner_advertiser_id: Optional[int]
-    winner_bid_cpc: float
-    winner_pctr: float
-    price_cpc: float
-    clicked: bool
-    revenue: float  # realized revenue (price_cpc if clicked else 0)
+    shown_ad_ids: List[int]              # top-K
+    slot_outcomes: List[SlotOutcome]     # length <= K
+    total_clicks: int
+    total_revenue: float
