@@ -52,11 +52,10 @@ def main() -> None:
     # Components
     predictor = DummyPredictor(base_rate=0.02, noise_std=0.6)
     policy = BidTimesPCTR()
-    auction = SecondPriceSingleSlot()
-    user_model = PositionBiasClickModel(position_bias=[1.0])  # single-slot
+    # auction = SecondPriceSingleSlot()
+    # user_model = PositionBiasClickModel(position_bias=[1.0])  # single-slot
 
     impressions = make_synthetic_impressions(n_impressions=50_000, n_candidates=30, seed=7)
-
     user_model = PositionBiasClickModel(position_bias=[1.0, 0.7, 0.5, 0.3])
     n_slots = 4
 
@@ -71,7 +70,14 @@ def main() -> None:
     )
 
     print("Done.")
-    print(out.metrics)
+    m = out.metrics
+    print("\nPosition-level metrics:")
+    for pos, d in m["pos"].items():
+        print(
+            f"pos={pos} imps={d['imps']} "
+            f"CTR={d['ctr']:.4f} avg_pctr={d['avg_pctr']:.4f} "
+            f"avg_bid={d['avg_bid_cpc']:.3f} avg_rev/imp={d['avg_rev_per_imp']:.4f}"
+        )
 
 
 if __name__ == "__main__":
