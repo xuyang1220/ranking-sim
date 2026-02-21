@@ -10,18 +10,13 @@ class MetricsAggregator:
     impressions: int = 0
     clicks: int = 0
     revenue: float = 0.0
-
-    # Simple diagnostics
-    avg_winner_pctr_sum: float = 0.0
-    avg_price_sum: float = 0.0
+    avg_shown: float = 0.0  # avg number of shown ads (K, but keeps you honest)
 
     def update(self, step: SimStepResult) -> None:
         self.impressions += 1
-        self.clicks += int(step.clicked)
-        self.revenue += float(step.revenue)
-
-        self.avg_winner_pctr_sum += float(step.winner_pctr)
-        self.avg_price_sum += float(step.price_cpc)
+        self.clicks += int(step.total_clicks)
+        self.revenue += float(step.total_revenue)
+        self.avg_shown += float(len(step.shown_ad_ids))
 
     def finalize(self) -> dict:
         imps = max(1, self.impressions)
@@ -34,6 +29,5 @@ class MetricsAggregator:
             "ctr": ctr,
             "revenue": self.revenue,
             "ecpm": ecpm,
-            "avg_winner_pctr": self.avg_winner_pctr_sum / imps,
-            "avg_price_cpc": self.avg_price_sum / imps,
+            "avg_ads_shown": self.avg_shown / imps,
         }
