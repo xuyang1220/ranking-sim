@@ -75,3 +75,18 @@ position_bias=[1.0, 0.7, 0.5, 0.3]
 * CTR decays according to both position bias and ranking quality
 * average bid declines with position due to selection effects from the ranking score
 * The observed revenue per position matched CTR × bid expectations.
+
+## NDCG@K 
+NDCG: [Normalized Discounted Cumulative Gain](https://en.wikipedia.org/wiki/Discounted_cumulative_gain#Normalized_DCG)  
+| Alpha ($\alpha$) | CTR | Revenue | eCPM | Mean NDCG |
+| :--- | :--- | :--- | :--- | :--- |
+| 0.20 | 0.2156 | 25,516.93 | 510.3386 | 0.8302 |
+| 0.40 | 0.2952 | 29,865.34 | 597.3069 | 0.8668 |
+| 0.60 | 0.3550 | 31,897.65 | 637.9530 | 0.8955 |
+| 0.80 | 0.3986 | 32,691.17 | 653.8234 | 0.9184 |
+| **1.00** | **0.4265** | **32,745.83** | **654.9165** | **0.9353** |
+| 1.20 | 0.4471 | 32,648.12 | 652.9623 | 0.9478 |
+| 1.40 | 0.4626 | 32,411.46 | 648.2292 | 0.9574 |
+| 1.60 | 0.4727 | 32,242.52 | 644.8505 | 0.9648 |
+| 1.80 | 0.4803 | 32,033.87 | 640.6774 | 0.9706 |
+| 2.00 | 0.4861 | 31,777.97 | 635.5595 | 0.9750 |
