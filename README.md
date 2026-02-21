@@ -31,6 +31,7 @@ OK, here is what I get from python -m scripts.sweep_alpha
 ``` bash
 python -m scripts.run_sim 
 ```
+position_bias=[1.0, 0.7, 0.5, 0.3]  
 
 | Metric | Value |
 | :--- | :--- |
@@ -57,3 +58,20 @@ python -m scripts.sweep_alpha
 | 1.60 | 0.4727 | 32,242.52 |
 | 1.80 | 0.4803 | 32,033.87 |
 | 2.00 | 0.4861 | 31,777.97 |
+
+
+## Added position-level metrics to multi-slot simulator
+position_bias=[1.0, 0.7, 0.5, 0.3]  
+
+| Position | Impressions | CTR | Avg. pCTR | Avg. Bid | Avg. Rev/Imp |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| 0 | 50,000 | 0.2169 | 0.2157 | 2.106 | 0.3931 |
+| 1 | 50,000 | 0.1124 | 0.1600 | 1.732 | 0.1514 |
+| 2 | 50,000 | 0.0637 | 0.1301 | 1.563 | 0.0741 |
+| 3 | 50,000 | 0.0336 | 0.1106 | 1.460 | 0.0364 |
+
+### Key takeaways
+* pCTR decreases monotonically with rank
+* CTR decays according to both position bias and ranking quality
+* average bid declines with position due to selection effects from the ranking score
+* The observed revenue per position matched CTR × bid expectations.
