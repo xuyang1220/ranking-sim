@@ -1,5 +1,7 @@
 # Result summary
 
+## Single slot, 2nd price auction.
+
 Here is what I get from python -m scripts.run_sim 
 | Metric | Value |
 | :--- | :--- |
@@ -24,3 +26,34 @@ OK, here is what I get from python -m scripts.sweep_alpha
 | 1.60 | 0.2448 | 4,375.74 |
 | 1.80 | 0.2496 | 3,371.62 |
 | 2.00 | 0.2537 | 2,643.42 |
+
+## Multiple slot, 1st price auction
+``` bash
+python -m scripts.run_sim 
+```
+
+| Metric | Value |
+| :--- | :--- |
+| **Impressions** | 50,000 |
+| **Clicks** | 21,327 |
+| **CTR** | 42.65% |
+| **Revenue** | 32,745.83 |
+| **eCPM** | 654.92 |
+| **Avg. Ads Shown** | 4.0 |
+
+``` bash
+python -m scripts.sweep_alpha
+```
+
+| Alpha ($\alpha$) | CTR | Revenue |
+| :--- | :--- | :--- |
+| 0.20 | 0.2156 | 25,516.93 |
+| 0.40 | 0.2952 | 29,865.34 |
+| 0.60 | 0.3550 | 31,897.65 |
+| 0.80 | 0.3986 | 32,691.17 |
+| 1.00 | 0.4265 | 32,745.83 |
+| 1.20 | 0.4471 | 32,648.12 |
+| 1.40 | 0.4626 | 32,411.46 |
+| 1.60 | 0.4727 | 32,242.52 |
+| 1.80 | 0.4803 | 32,033.87 |
+| 2.00 | 0.4861 | 31,777.97 |
