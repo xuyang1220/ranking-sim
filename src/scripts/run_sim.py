@@ -71,6 +71,8 @@ def main() -> None:
 
     print("Done.")
     m = out.metrics
+    print("\nOverall metrics:")
+    print(f"ctr: {m['ctr']}, revenue: {m['revenue']},  ecpm: {m['ecpm']}, mean_ndcg: m['mean_ndcg'], ndcg_k: {m['ndcg_k']:.3f} mean_ndcg: {m['mean_ndcg']:.4f}")
     print("\nPosition-level metrics:")
     for pos, d in m["pos"].items():
         print(
@@ -78,7 +80,7 @@ def main() -> None:
             f"CTR={d['ctr']:.4f} avg_pctr={d['avg_pctr']:.4f} "
             f"avg_bid={d['avg_bid_cpc']:.3f} avg_rev/imp={d['avg_rev_per_imp']:.4f}"
         )
-
+     
 
 if __name__ == "__main__":
     main()
