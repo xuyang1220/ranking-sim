@@ -27,7 +27,7 @@ The objective is to study **tradeoffs between ranking quality, user engagement, 
 
 - **User Click Model**  
 $P(click | position_i) = pCTR × position\_{bias[i]}$  
-$position_bias = [1.0, 0.7, 0.5, 0.3]$
+$position\_bias = [1.0, 0.7, 0.5, 0.3]$
 
 ---
 
@@ -63,8 +63,7 @@ This can exceed 1 when multiple slots are shown.
 - Sum of realized CPC payments
 - CPC is paid only if the ad is clicked
 
-- **eCPM**
-$eCPM = (revenue / impressions) × 1000$  
+- $eCPM = (revenue / impressions) × 1000$  
 
 
 - **mean_ndcg@K**
@@ -113,7 +112,7 @@ $pCTR × position\_bias$
 
  Observed CTR closely matches:
 
- $CTR_i ≈ avg\_pCTR\_i × position\_bias\_i$  
+ $CTR\_i ≈ avg\_pCTR\_i × position\_bias\_i$  
  
 2. **Ranking Quality**
 
