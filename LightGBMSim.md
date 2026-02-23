@@ -16,18 +16,18 @@ The objective is to study **tradeoffs between ranking quality, user engagement, 
   - Output: calibrated click-through probability (pCTR)
 
 - **Ranking Policy**
-  $score = bid × pCTR^α$
+  - $score = bid × pCTR^α$
 
 - **Auction / Pricing**
-- First-price CPC
-- Advertiser pays bid only if the ad is clicked
+  - First-price CPC
+  - Advertiser pays bid only if the ad is clicked
 
 - **Ad Slots**
-- 4 slots per impression
+  - 4 slots per impression
 
 - **User Click Model**  
-$P(click | position_i) = pCTR × position\_{bias[i]}$  
-$position\_bias = [1.0, 0.7, 0.5, 0.3]$
+  - P(click | position_i) = pCTR × position\_bias[i]   
+  - position\_bias = [1.0, 0.7, 0.5, 0.3]
 
 ---
 
@@ -52,25 +52,21 @@ Because this is a **multi-slot ranking setup**, metrics differ slightly from sta
 
 ### Global Metrics
 
-- $clicks\_per\_{impression} = total\_{clicks} / impressions$  
+This can exceed 1 when multiple slots are shown. So we define:
 
-This can exceed 1 when multiple slots are shown.
+- clicks\_per\_impression = total\_clicks / impressions  
 
-- $ctr\_per\_slot = total\_clicks / (impressions × number\_of\_slots)$  
+- ctr\_per\_slot = total\_clicks / (impressions × number\_of\_slots)  
 
 - **revenue**
-
-- Sum of realized CPC payments
-- CPC is paid only if the ad is clicked
-
-- $eCPM = (revenue / impressions) × 1000$  
-
+  - Sum of realized CPC payments
+  - CPC is paid only if the ad is clicked
+  - $eCPM = (revenue / impressions) × 1000$  
 
 - **mean_ndcg@K**
-
-- NDCG computed per impression using **pCTR as graded relevance**
-- Averaged across impressions
-- K equals the number of slots (K = 4)
+  - NDCG computed per impression using **pCTR as graded relevance**
+  - Averaged across impressions
+  - K equals the number of slots (K = 4)
 
 ---
 
@@ -91,9 +87,7 @@ This can exceed 1 when multiple slots are shown.
 - **Clicks per impression > 1** is expected due to the multi-slot layout
 - Revenue is dominated by top slots but augmented by lower slots
 - The real pCTR model is well calibrated, as observed CTR closely matches
-
-$pCTR × position\_bias$
-
+  - pCTR × position\_bias
 
 ---
 
@@ -112,7 +106,7 @@ $pCTR × position\_bias$
 
  Observed CTR closely matches:
 
- $CTR\_i ≈ avg\_pCTR\_i × position\_bias\_i$  
+ CTR\_i ≈ avg\_pCTR\_i × position\_bias\_i
  
 2. **Ranking Quality**
 
