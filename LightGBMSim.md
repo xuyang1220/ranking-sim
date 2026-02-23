@@ -125,13 +125,103 @@ This can exceed 1 when multiple slots are shown. So we define:
 
 ---
 
-## 6. Ranking Quality vs Business Tradeoff
+## 6. Performance W.R.T alpha(alpha sweep)
+
+
+α controls the tradeoff between **monetization (bid)** and **relevance (pCTR)**.
+
+---
+
+### 6.1 Sweep Results
+
+| α | Clicks / Imp | CTR / Slot | Revenue | eCPM | mean NDCG@4 |
+|--:|-------------:|-----------:|--------:|-----:|------------:|
+| 0.20 | 0.8260 | 0.2065 | 107,388 | 2147.76 | 0.8676 |
+| 0.40 | 0.9930 | 0.2483 | 118,082 | 2361.63 | 0.8951 |
+| 0.60 | 1.1247 | 0.2812 | 123,958 | 2479.16 | 0.9142 |
+| 0.80 | 1.2236 | 0.3059 | 126,237 | 2524.73 | 0.9282 |
+| **1.00** | **1.3020** | **0.3255** | **126,897** | **2537.95** | **0.9387** |
+| 1.20 | 1.3610 | 0.3403 | 126,669 | 2533.37 | 0.9469 |
+| 1.40 | 1.4084 | 0.3521 | 125,519 | 2510.38 | 0.9535 |
+| 1.60 | 1.4431 | 0.3608 | 124,178 | 2483.55 | 0.9588 |
+| 1.80 | 1.4729 | 0.3682 | 122,809 | 2456.17 | 0.9631 |
+
+---
+
+### 6.2 Observations
+
+#### 1. User Engagement (CTR)
+- **Clicks per impression** and **CTR per slot** increase monotonically with α
+- Higher α prioritizes high-pCTR ads more aggressively
+- This improves user engagement across all slots
+
+#### 2. Ranking Quality (NDCG)
+- mean NDCG@4 increases smoothly from **0.87 → 0.96**
+- This reflects increasingly relevance-optimal rankings
+- As α → ∞, ranking approaches pure pCTR sorting
+
+#### 3. Revenue & eCPM
+- Revenue and eCPM **peak around α ≈ 1.0**
+- Beyond this point:
+  - CTR continues to increase
+  - Revenue begins to decline gradually
+
+This occurs because:
+- Bids are generated independently of pCTR
+- Very high α favors highly relevant but lower-bid ads
+- Revenue depends on both **click probability** and **willingness to pay**
+
+---
+
+### 6.3 Key Tradeoff
+
+The sweep highlights a fundamental ranking tradeoff:
+
+- **Low α**  
+  - Bid-heavy ranking  
+  - Lower CTR, suboptimal relevance  
+- **High α**  
+  - Relevance-optimal ranking (high NDCG, high CTR)  
+  - Reduced monetization due to lower bids  
+- **Intermediate α (~1.0)**  
+  - Best balance between relevance and revenue  
+
+**Revenue-optimal ≠ Relevance-optimal**
+
+---
+
+### 6.4 Practical Implication
+
+This experiment mirrors real production behavior:
+
+- Ranking systems do **not** optimize pure relevance
+- They optimize a **composite objective** balancing:
+  - user satisfaction
+  - advertiser value
+  - platform revenue
+
+Offline simulation makes these tradeoffs explicit and measurable **before online deployment**.
+
+---
+
+### 6.5 Summary
+
+- α provides a smooth control knob between monetization and relevance
+- Real pCTR produces sharper, more realistic tradeoff curves
+- NDCG, CTR, and revenue must be evaluated together
+- The optimal operating point depends on business objectives
+
+This α sweep demonstrates how **offline ranking simulation with a real CTR model** can guide principled ranking policy design.
+
+---
+
+## 7. Ranking Quality vs Business Tradeoff
 
 - Increasing α makes ranking more **relevance-driven**
 - NDCG increases monotonically as α increases
 - Revenue peaks at an intermediate α due to the tradeoff between:
-- click probability (pCTR)
-- advertiser willingness to pay (bid)
+  - click probability (pCTR)
+  - advertiser willingness to pay (bid)
 
 **Key insight**
 
@@ -139,10 +229,11 @@ This can exceed 1 when multiple slots are shown. So we define:
 
 ---
 
-## 7. Limitations & Assumptions
+## 8. Limitations & Assumptions
 
 - Logged data contains one shown ad per impression; candidate sets are synthetically constructed
-- First-price CPC is used (GSP pricing is not yet implemented)
+- First-price CPC is used (GSP pricing is not yet implemented, although we 
+implemented 2nd price auction for single slot, see README.md)
 - No budget constraints or pacing
 - pCTR is treated as the ground-truth relevance signal for NDCG
 
@@ -150,7 +241,7 @@ These simplifications are intentional to isolate ranking effects.
 
 ---
 
-## 8. Key Takeaways
+## 9. Key Takeaways
 
 - Offline simulation enables controlled evaluation of ranking policies
 - Real pCTR models can be safely reused for multi-candidate ranking analysis
@@ -160,12 +251,10 @@ These simplifications are intentional to isolate ranking effects.
 
 ---
 
-## 9. Future Work
+## 10. Future Work
 
 Planned extensions include:
 
-- α sweep with real pCTR (tradeoff curves)
 - Counterfactual evaluation (IPS / SNIPS)
 - Budget constraints and pacing
 - Multi-slot GSP pricing
-- Pareto analysis of NDCG, CTR, and revenue
