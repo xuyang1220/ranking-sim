@@ -26,7 +26,7 @@ The objective is to study **tradeoffs between ranking quality, user engagement, 
 - 4 slots per impression
 
 - **User Click Model**  
-$P(click | position i) = pCTR × position_bias[i]$  
+$P(click | position_i) = pCTR × position\_{bias[i]}$  
 $position_bias = [1.0, 0.7, 0.5, 0.3]$
 
 ---
@@ -52,13 +52,11 @@ Because this is a **multi-slot ranking setup**, metrics differ slightly from sta
 
 ### Global Metrics
 
-- **clicks_per_impression**  
-$clicks_per_impression = total_clicks / impressions$  
+- $clicks\_per\_{impression} = total\_{clicks} / impressions$  
 
 This can exceed 1 when multiple slots are shown.
 
-- **ctr_per_slot**
-$ctr_per_slot = total_clicks / (impressions × number_of_slots)$  
+- $ctr\_per\_slot = total\_clicks / (impressions × number\_of\_slots)$  
 
 - **revenue**
 
@@ -95,7 +93,7 @@ $eCPM = (revenue / impressions) × 1000$
 - Revenue is dominated by top slots but augmented by lower slots
 - The real pCTR model is well calibrated, as observed CTR closely matches
 
-$pCTR × position_bias$
+$pCTR × position\_bias$
 
 
 ---
@@ -115,7 +113,7 @@ $pCTR × position_bias$
 
  Observed CTR closely matches:
 
- $CTR_i ≈ avg_pCTR_i × position_bias_i$  
+ $CTR_i ≈ avg\_pCTR\_i × position\_bias\_i$  
  
 2. **Ranking Quality**
 
