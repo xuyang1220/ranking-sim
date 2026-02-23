@@ -104,19 +104,18 @@ This can exceed 1 when multiple slots are shown. So we define:
 
 1. **Position Bias Validation**
 
- Observed CTR closely matches:
+ - Observed CTR closely matches:
 
- CTR\_i ≈ avg\_pCTR\_i × position\_bias\_i
+ - CTR\_i ≈ avg\_pCTR\_i × position\_bias\_i
  
 2. **Ranking Quality**
 
-Average pCTR decreases monotonically with position, confirming correct ranking behavior.
+ - Average pCTR decreases monotonically with position, confirming correct ranking behavior.
 
 3. **Selection Effects**
 
-Although bids are generated independently of pCTR, average bid decreases with position due to selection induced by:
-$score = bid × pCTR^α$  
-
+ - Although bids are generated independently of pCTR, average bid decreases with position due to selection induced by:
+ - $score = bid × pCTR^α$  
 
 4. **Revenue Concentration**
 
