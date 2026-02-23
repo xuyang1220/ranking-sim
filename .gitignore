@@ -23,5 +23,6 @@ Thumbs.db
 
 # Outputs
 alpha_sweep.csv
+alpha_sweep_lightGBM.csv
 *.log
 artifacts/
