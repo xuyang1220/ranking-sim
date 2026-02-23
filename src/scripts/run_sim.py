@@ -4,13 +4,43 @@ from dataclasses import asdict
 from typing import Iterable, List, Dict, Any
 
 import numpy as np
+import pandas as pd
 
 from ranking_sim.data.schema import Impression, AdCandidate
-from ranking_sim.models.predictor import DummyPredictor
+from ranking_sim.models.predictor import DummyPredictor, PandasLightGBMPredictor
 from ranking_sim.ranking.policy import BidTimesPCTR
 from ranking_sim.auction.mechanisms import SecondPriceSingleSlot
 from ranking_sim.simulation.user import PositionBiasClickModel
 from ranking_sim.simulation.runner import run_simulation
+
+
+def make_impressions_from_feature_bank(
+        feature_bank: pd.DataFrame, n_impressions: int, n_candidates: int, seed: int
+) -> Iterable[Impression]:
+    rng = np.random.default_rng(seed)
+    N = len(feature_bank)
+
+    for imp_id in range(n_impressions):
+        # sample candidate rows
+        idx = rng.integers(0, N, size=n_candidates)
+        cand_rows = feature_bank.iloc[idx]
+
+        candidates = []
+        for j, (_, row) in enumerate(cand_rows.iterrows()):
+            ad_id = imp_id * 10_000 + j
+            advertiser_id = int(rng.integers(0, 200))
+            bid_cpc = float(np.clip(rng.lognormal(mean=-0.2, sigma=0.7), 0.05, 10.0))
+
+            candidates.append(
+                AdCandidate(
+                    ad_id=ad_id,
+                    advertiser_id=advertiser_id,
+                    bid_cpc=bid_cpc,
+                    features=row.to_dict(),  # <- keys match your 94 columns
+                )
+            )
+
+        yield Impression(imp_id=imp_id, context={}, candidates=candidates)
 
 
 def make_synthetic_impressions(
@@ -50,12 +80,13 @@ def make_synthetic_impressions(
 
 def main() -> None:
     # Components
-    predictor = DummyPredictor(base_rate=0.02, noise_std=0.6)
+    predictor = PandasLightGBMPredictor(model_path="artifacts/lgb_ctr_model_8M.txt")
     policy = BidTimesPCTR()
     # auction = SecondPriceSingleSlot()
     # user_model = PositionBiasClickModel(position_bias=[1.0])  # single-slot
-
-    impressions = make_synthetic_impressions(n_impressions=50_000, n_candidates=30, seed=7)
+    # impressions = make_synthetic_impressions(n_impressions=50_000, n_candidates=30, seed=7)
+    feature_bank = pd.read_parquet("artifacts/feature_bank.parquet")
+    impressions = make_impressions_from_feature_bank(feature_bank, n_impressions=50_000, n_candidates=30, seed=7)
     user_model = PositionBiasClickModel(position_bias=[1.0, 0.7, 0.5, 0.3])
     n_slots = 4
 
@@ -72,7 +103,7 @@ def main() -> None:
     print("Done.")
     m = out.metrics
     print("\nOverall metrics:")
-    print(f"ctr: {m['ctr']}, revenue: {m['revenue']},  ecpm: {m['ecpm']}, mean_ndcg: m['mean_ndcg'], ndcg_k: {m['ndcg_k']:.3f} mean_ndcg: {m['mean_ndcg']:.4f}")
+    print(f"clicks_per_impression: {m['clicks_per_impression']}, ctr_per_slot: {m['ctr_per_slot']}, revenue: {m['revenue']},  ecpm: {m['ecpm']}, ndcg_k: {m['ndcg_k']:.3f} mean_ndcg: {m['mean_ndcg']:.4f}")
     print("\nPosition-level metrics:")
     for pos, d in m["pos"].items():
         print(

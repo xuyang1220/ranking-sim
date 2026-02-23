@@ -47,7 +47,8 @@ class MetricsAggregator:
 
     def finalize(self) -> dict:
         imps = max(1, self.impressions)
-        ctr = self.clicks / imps
+        ctr_per_slot = self.clicks / (imps*self.ndcg_k)
+        clicks_per_impression = self.clicks / imps
         ecpm = (self.revenue / imps) * 1000.0
 
         # Build position-level summary
@@ -66,7 +67,8 @@ class MetricsAggregator:
         return {
             "impressions": self.impressions,
             "clicks": self.clicks,
-            "ctr": ctr,
+            "ctr_per_slot": self.clicks / (imps*self.ndcg_k),
+            "clicks_per_impression": clicks_per_impression,
             "revenue": self.revenue,
             "ecpm": ecpm,
             "avg_ads_shown": self.avg_shown / imps,

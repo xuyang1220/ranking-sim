@@ -24,3 +24,4 @@ Thumbs.db
 # Outputs
 alpha_sweep.csv
 *.log
+artifacts/
